@@ -16,10 +16,16 @@ class TodosController < ApplicationController
   end
 
   def update
-    if @todo.update(todo_params)
-      render json: @todo, status: :ok
+    validation_errors = validate_params(todo_params)
+
+    if validation_errors.empty?
+      if @todo.update(todo_params)
+        render json: @todo, status: :ok
+      else
+        render json: @todo.errors, status: :unprocessable_entity
+      end
     else
-      render json: @todo.errors, status: :unprocessable_entity
+      render json: { errors: validation_errors }, status: :unprocessable_entity
     end
   end
 
@@ -31,5 +37,19 @@ class TodosController < ApplicationController
 
   def find_todo
     @todo = Todo.find(params[:id])
+  end
+
+  def boolean?(value)
+    value == true || value == false
+  end
+
+  def validate_params(params)
+    errors = {}
+
+    if params.key?(:completed) && !boolean?(params[:completed])
+      errors[:completed] = "must be a boolean value"
+    end
+
+    errors
   end
 end

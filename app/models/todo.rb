@@ -2,6 +2,7 @@ class Todo < ApplicationRecord
   before_validation :set_defaults, on: :create
 
   validates :title, presence: true
+  validates :completed, inclusion: { in: [ true, false ] }
 
   private
 
