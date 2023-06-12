@@ -82,10 +82,10 @@ RSpec.describe TodosController, type: :controller do
     subject(:update_todo) { patch :update, params: params, as: :json }
 
     context "with valid parameters" do
-      let(:params) { { id: todo.id, title: new_title, position: new_position, completed: new_completed } }
       let(:new_title) { "Clean the washing machine" }
       let(:new_position) { 999 }
       let(:new_completed) { true }
+      let(:params) { { id: todo.id, title: new_title, position: new_position, completed: new_completed } }
       let!(:todo) { create(:todo) }
 
       it "updates attributes" do
