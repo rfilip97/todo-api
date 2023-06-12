@@ -1,10 +1,12 @@
 class Todo < ApplicationRecord
-  before_create :set_initial_position
+  before_create :set_defaults
 
   private
 
-  def set_initial_position
+  def set_defaults
     last_position = Todo.maximum(:position) || 0
+
     self.position = last_position + 1
+    self.completed = false
   end
 end
