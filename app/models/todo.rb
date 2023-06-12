@@ -2,6 +2,7 @@ class Todo < ApplicationRecord
   before_validation :set_defaults, on: :create
 
   validates :title, presence: true
+  validates :position, numericality: { only_integer: true }
   validates :completed, inclusion: { in: [ true, false ] }
 
   private

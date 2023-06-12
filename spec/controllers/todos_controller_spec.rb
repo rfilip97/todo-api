@@ -77,4 +77,60 @@ RSpec.describe TodosController, type: :controller do
       end
     end
   end
+
+  describe "PATCH #update" do
+    subject(:update_todo) { patch :update, params: params, as: :json }
+
+    context "with valid parameters" do
+      let(:params) { { id: todo.id, title: new_title, position: new_position, completed: new_completed } }
+      let(:new_title) { "Clean the washing machine" }
+      let(:new_position) { 999 }
+      let(:new_completed) { true }
+      let!(:todo) { create(:todo) }
+
+      it "updates attributes" do
+        update_todo
+        todo.reload
+
+        expect(todo.title).to eq(new_title)
+        expect(todo.completed).to eq(new_completed)
+        expect(todo.position).to eq(new_position)
+      end
+
+      it "returns 200" do
+        update_todo
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context "with invalid parameters" do
+      let(:invalid_value) { "abcde" }
+      let!(:todo) { create(:todo) }
+
+      it "does not update title" do
+        patch :update, params: { id: todo.id, title: nil }
+        todo.reload
+
+        expect(todo.title).not_to eq(nil)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it "does not update position" do
+        patch :update, params: { id: todo.id, position: invalid_value }
+        todo.reload
+
+        expect(todo.position).not_to eq(invalid_value)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it "does not update completed" do
+        patch :update, params: { id: todo.id, completed: invalid_value }
+        todo.reload
+
+        expect(todo.completed).not_to eq(invalid_value)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+  end
 end
