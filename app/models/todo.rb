@@ -1,6 +1,8 @@
 class Todo < ApplicationRecord
   before_create :set_defaults
 
+  validates :title, presence: true
+
   private
 
   def set_defaults
