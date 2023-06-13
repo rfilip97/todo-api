@@ -1,9 +1,14 @@
 class TodosController < ApplicationController
+  include Filterable
+
   before_action :find_todo, only: [:update, :destroy]
 
   def index
-    @todos = Todo.all
-    render json: @todos
+    filter = params[:filter]
+    all_todos = Todo.all
+
+    @filtered_todos = filter_by_status(all_todos, filter)
+    render json: @filtered_todos
   end
 
   def create
@@ -35,7 +40,7 @@ class TodosController < ApplicationController
   private
 
   def todo_params
-    params.permit(:title, :position, :completed)
+    params.permit(:title, :position, :completed, :filter)
   end
 
   def find_todo
