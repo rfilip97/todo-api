@@ -118,4 +118,40 @@ RSpec.describe TodosController, type: :controller do
       end
     end
   end
+
+  describe "DELETE #destroy" do
+    let!(:todo) { create(:todo) }
+
+    context "when the todo exists" do
+      subject { delete :destroy, params: { id: todo.id } }
+
+      it "destroys the todo" do
+        expect { subject }.to change(Todo, :count).by(-1)
+      end
+
+      it "returns status no_content" do
+        subject
+        expect(response).to have_http_status(:no_content)
+      end
+    end
+
+    context "when the todo doesn't exist" do
+      subject { delete :destroy, params: { id: 42 } }
+
+      it "does not change the number of todos" do
+        expect { subject }.not_to change(Todo, :count)
+      end
+
+      it "returns status not_found" do
+        subject
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it "returns an error message" do
+        subject
+        json_response = JSON.parse(response.body)
+        expect(json_response["error"]).to eq("Todo not found")
+      end
+    end
+  end
 end
