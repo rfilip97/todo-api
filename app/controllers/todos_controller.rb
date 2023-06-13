@@ -1,5 +1,5 @@
 class TodosController < ApplicationController
-  before_action :find_todo, only: [:update]
+  before_action :find_todo, only: [:update, :destroy]
 
   def index
     @todos = Todo.all
@@ -24,6 +24,14 @@ class TodosController < ApplicationController
     end
   end
 
+  def destroy
+    if @todo.destroy
+      head :no_content
+    else
+      render_json_errors(@todo.errors, :unprocessable_entity)
+    end
+  end
+
   private
 
   def todo_params
@@ -32,5 +40,9 @@ class TodosController < ApplicationController
 
   def find_todo
     @todo = Todo.find(params[:id])
+  end
+
+  def render_json_errors(errors, status)
+    render json: { errors: errors }, status: status
   end
 end
