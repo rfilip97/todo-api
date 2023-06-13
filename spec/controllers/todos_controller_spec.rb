@@ -157,4 +157,24 @@ RSpec.describe TodosController, type: :controller do
       end
     end
   end
+
+  describe "DELETE #destroy_completed" do
+    let!(:completed_todos) { create_list(:todo, 3, :completed) }
+    let!(:active_todos) { create_list(:todo, 2) }
+
+    subject { delete :destroy_completed }
+
+    it "destroys all completed todos" do
+      expect { subject }.to change(Todo.where(completed: true), :count).by(-3)
+    end
+
+    it "does not destroy active todos" do
+      expect { subject }.not_to change(Todo.where(completed: false), :count)
+    end
+
+    it "returns status no_content" do
+      subject
+      expect(response).to have_http_status(:no_content)
+    end
+  end
 end
