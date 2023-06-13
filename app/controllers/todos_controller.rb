@@ -39,6 +39,11 @@ class TodosController < ApplicationController
     end
   end
 
+  def destroy_completed
+    Todo.where(completed: true).destroy_all
+    head :no_content
+  end
+
   private
 
   def todo_params
