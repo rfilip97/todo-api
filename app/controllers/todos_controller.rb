@@ -10,7 +10,7 @@ class TodosController < ApplicationController
     @todo = Todo.new(todo_params)
 
     if @todo.save
-      render json: @todo, status: :created
+      render_json_success(@todo, :created)
     else
       render_json_errors(@todo.errors, :unprocessable_entity)
     end
@@ -18,7 +18,7 @@ class TodosController < ApplicationController
 
   def update
     if @todo.update(todo_params)
-      render json: @todo, status: :ok
+      render_json_success(@todo, :ok)
     else
       render_json_errors(@todo.errors, :unprocessable_entity)
     end
@@ -40,6 +40,10 @@ class TodosController < ApplicationController
 
   def find_todo
     @todo = Todo.find(params[:id])
+  end
+
+  def render_json_success(resource, status)
+    render json: resource, status: status
   end
 
   def render_json_errors(errors, status)
