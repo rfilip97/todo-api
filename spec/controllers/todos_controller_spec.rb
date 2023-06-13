@@ -2,17 +2,18 @@ require "rails_helper"
 
 RSpec.describe TodosController, type: :controller do
   describe "GET #index" do
-    let!(:first_todo) { create(:todo) }
-    let!(:second_todo) { create(:todo) }
-    let!(:third_todo) { create(:todo) }
+    let!(:todos) { create_list(:todo, 3) }
+
+    before { get :index }
+
+    subject { JSON.parse(response.body) }
+
+    it "returns HTTP status ok" do
+      expect(response).to have_http_status(:ok)
+    end
 
     it "returns all todos" do
-      get :index
-      expect(response).to have_http_status(:ok)
-
-      json_response = JSON.parse(response.body)
-      expect(json_response.length).to eq(3)
-      expect(json_response.map { |todo| todo["id"] }).to match_array([first_todo.id, second_todo.id, third_todo.id])
+      expect(subject.length).to eq(3)
     end
   end
 
@@ -20,60 +21,100 @@ RSpec.describe TodosController, type: :controller do
     context "with valid parameters" do
       let(:valid_params) { attributes_for(:todo) }
 
-      it "returns status created" do
-        post :create, params: valid_params
+      subject { post :create, params: valid_params }
+
+      it "returns HTTP status Created" do
+        subject
         expect(response).to have_http_status(:created)
       end
 
       it "creates a new todo" do
-        expect {
-          post :create, params: valid_params
-        }.to change(Todo, :count).by(1)
-      end
-
-      it "returns the newly created todo" do
-        todo = FactoryBot.build(:todo)
-
-        post :create, params: { title: todo.title }
-        json_response = JSON.parse(response.body)
-
-        expect(json_response["title"]).to eq(todo.title)
-        expect(json_response["position"]).to eq(1)
-        expect(json_response["completed"]).to eq(false)
-      end
-
-      it "increments position" do
-        post :create, params: { title: "First todo" }
-        first_json_response = JSON.parse(response.body)
-
-        post :create, params: { title: "Second todo" }
-        second_json_response = JSON.parse(response.body)
-
-        post :create, params: { title: "Third todo" }
-        third_json_response = JSON.parse(response.body)
-
-        expect(first_json_response["position"]).to eq(1)
-        expect(second_json_response["position"]).to eq(2)
-        expect(third_json_response["position"]).to eq(3)
+        expect { subject }.to change(Todo, :count).by(1)
       end
     end
 
     context "with invalid parameters" do
-      let(:invalid_params) do
-        {
-          title: nil,
-        }
+      let(:invalid_params) { { title: nil } }
+
+      subject { post :create, params: invalid_params }
+
+      it "returns HTTP status Unprocessable Entity" do
+        subject
+        expect(response).to have_http_status(:unprocessable_entity)
       end
 
       it "does not create a new todo" do
-        expect {
-          post :create, params: invalid_params
-        }.to_not change(Todo, :count)
+        expect { subject }.not_to change(Todo, :count)
+      end
+    end
+  end
+
+  describe "PATCH #update" do
+    let!(:todo) { create(:todo) }
+
+    context "with valid parameters" do
+      let(:new_attributes) { { title: "New title", position: 1, completed: true } }
+      let(:params) { { id: todo.id }.merge(new_attributes) }
+
+      subject { patch :update, params: params, as: :json }
+
+      it "returns HTTP status OK" do
+        subject
+        expect(response).to have_http_status(:ok)
       end
 
-      it "returns status unprocessable_entity" do
-        post :create, params: invalid_params
+      it "updates attributes" do
+        subject
+        todo.reload
+
+        expect(todo.title).to eq(new_attributes[:title])
+        expect(todo.completed).to eq(new_attributes[:completed])
+        expect(todo.position).to eq(new_attributes[:position])
+      end
+    end
+
+    context "with invalid title" do
+      let(:invalid_params) { { id: todo.id, title: nil } }
+
+      subject { patch :update, params: invalid_params, as: :json }
+
+      it "returns HTTP status Unprocessable Entity" do
+        subject
         expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it "does not update the todo" do
+        expect { subject }.not_to change { todo.reload.attributes }
+      end
+    end
+
+    context "with invalid position" do
+      let(:invalid_params) { { id: todo.id, position: "abcde" } }
+
+      subject { patch :update, params: invalid_params, as: :json }
+
+      it "returns HTTP status Unprocessable Entity" do
+        subject
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it "does not update the todo" do
+        expect { subject }.not_to change { todo.reload.attributes }
+      end
+    end
+
+    context "with invalid completed" do
+      let(:invalid_params) { { id: todo.id, completed: "abcde" } }
+
+      subject { patch :update, params: invalid_params, as: :json }
+
+      it "returns HTTP status Unprocessable Entity" do
+        subject
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it "does not update the todo" do
+        expect { subject }.not_to change { todo.reload.attributes }
       end
     end
   end

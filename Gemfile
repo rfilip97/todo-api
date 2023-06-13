@@ -44,6 +44,7 @@ group :development, :test do
   gem 'database_cleaner-active_record'
   gem 'shoulda-matchers'
   gem 'rack-cors'
+  gem 'pry'
 end
 
 group :development do

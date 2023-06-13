@@ -1,3 +1,3 @@
 Rails.application.routes.draw do
-  resources :todos, only: [:index, :create], defaults: { format: :json }
+  resources :todos, only: [:index, :create, :update], defaults: { format: :json }
 end
