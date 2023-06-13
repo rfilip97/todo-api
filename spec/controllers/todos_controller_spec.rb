@@ -13,7 +13,10 @@ RSpec.describe TodosController, type: :controller do
     end
 
     it "returns all todos" do
-      expect(subject.length).to eq(3)
+      subject
+
+      json_response = JSON.parse(response.body)
+      expect(json_response["todos"].length).to eq(3)
     end
   end
 
