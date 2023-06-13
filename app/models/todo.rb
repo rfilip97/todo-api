@@ -9,7 +9,7 @@ class Todo < ApplicationRecord
 
   def set_defaults
     self.position = Todo.maximum(:position).to_i + 1
-    self.completed = false
+    self.completed = false if self.completed.nil?
   end
 
   def completed_value
