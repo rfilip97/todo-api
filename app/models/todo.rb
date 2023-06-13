@@ -1,7 +1,7 @@
 class Todo < ApplicationRecord
   before_validation :set_defaults, on: :create
 
-  validates :title, presence: true
+  validates :title, presence: { message: "Title can't be blank" }
   validates :position, numericality: { only_integer: true }
   validate :completed_value, on: :update
 
