@@ -7,8 +7,10 @@ class TodosController < ApplicationController
     filter = params[:filter]
     all_todos = Todo.all
 
-    @filtered_todos = filter_by_status(all_todos, filter)
-    render json: @filtered_todos
+    filtered_todos = filter_by_status(all_todos, filter)
+    active_todos = filter == VALID_FILTERS[:active] ? filtered_todos : filter_by_status(all_todos, VALID_FILTERS[:active])
+
+    render json: { todos: filtered_todos, active_count: active_todos.length }
   end
 
   def create
