@@ -12,7 +12,7 @@ class TodosController < ApplicationController
     if @todo.save
       render json: @todo, status: :created
     else
-      render json: @todo.errors, status: :unprocessable_entity
+      render_json_errors(@todo.errors, :unprocessable_entity)
     end
   end
 
@@ -20,7 +20,7 @@ class TodosController < ApplicationController
     if @todo.update(todo_params)
       render json: @todo, status: :ok
     else
-      render json: @todo.errors, status: :unprocessable_entity
+      render_json_errors(@todo.errors, :unprocessable_entity)
     end
   end
 
