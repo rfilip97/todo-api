@@ -43,6 +43,7 @@ group :development, :test do
   gem 'factory_bot_rails'
   gem 'database_cleaner-active_record'
   gem 'shoulda-matchers'
+  gem 'rack-cors'
 end
 
 group :development do
